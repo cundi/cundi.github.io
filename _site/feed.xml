@@ -1,13 +1,390 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ml</title>
+    <title>涵虚</title>
     <description></description>
     <link>http://cundi.github.io/</link>
     <atom:link href="http://cundi.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 27 Jul 2016 20:43:53 +0800</pubDate>
-    <lastBuildDate>Wed, 27 Jul 2016 20:43:53 +0800</lastBuildDate>
+    <pubDate>Wed, 27 Jul 2016 22:09:13 +0800</pubDate>
+    <lastBuildDate>Wed, 27 Jul 2016 22:09:13 +0800</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
+    
+      <item>
+        <title>实时Django</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#finally-real-time-django-is-here-get-started-with-django-channels&quot; id=&quot;markdown-toc-finally-real-time-django-is-here-get-started-with-django-channels&quot;&gt;Finally, Real-Time Django Is Here: Get Started with Django Channels&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#getting-started-how-to-make-a-real-time-chat-app-in-django&quot; id=&quot;markdown-toc-getting-started-how-to-make-a-real-time-chat-app-in-django&quot;&gt;Getting started: how to make a real-time chat app in Django&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#note&quot; id=&quot;markdown-toc-note&quot;&gt;Note:&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#first-steps--its-still-django&quot; id=&quot;markdown-toc-first-steps--its-still-django&quot;&gt;First steps — it’s still Django&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#where-were-going&quot; id=&quot;markdown-toc-where-were-going&quot;&gt;Where we’re going&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#installing-and-setting-up-channels&quot; id=&quot;markdown-toc-installing-and-setting-up-channels&quot;&gt;Installing and setting up Channels&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#install-channels&quot; id=&quot;markdown-toc-install-channels&quot;&gt;1. Install Channels&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#choose-a-channel-layer&quot; id=&quot;markdown-toc-choose-a-channel-layer&quot;&gt;2. Choose a channel layer&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#channel-routing&quot; id=&quot;markdown-toc-channel-routing&quot;&gt;3. Channel routing&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#run-with-channels&quot; id=&quot;markdown-toc-run-with-channels&quot;&gt;4. Run with channels&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#websocket-consumers&quot; id=&quot;markdown-toc-websocket-consumers&quot;&gt;WebSocket consumers&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#deploying-and-scaling&quot; id=&quot;markdown-toc-deploying-and-scaling&quot;&gt;Deploying and scaling&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#procfile-and-process-types&quot; id=&quot;markdown-toc-procfile-and-process-types&quot;&gt;1. Procfile and process types&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#addons-postgres-and-redis&quot; id=&quot;markdown-toc-addons-postgres-and-redis&quot;&gt;2. Addons: Postgres and Redis&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href=&quot;#scaling&quot; id=&quot;markdown-toc-scaling&quot;&gt;3. Scaling&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#whats-next&quot; id=&quot;markdown-toc-whats-next&quot;&gt;What’s next?&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#further-reading&quot; id=&quot;markdown-toc-further-reading&quot;&gt;Further Reading&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;finally-real-time-django-is-here-get-started-with-django-channels&quot;&gt;Finally, Real-Time Django Is Here: Get Started with Django Channels&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;原文链接： https://blog.heroku.com/in_deep_with_django_channels_the_future_of_real_time_apps_in_django&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Today, we’re thrilled to host Jacob Kaplan-Moss. Jacob’s a former Herokai and long-time core contributor to Django, and he’s here to share an in-depth look at something that he believes will define the future of the framework.&lt;/p&gt;
+
+&lt;p&gt;When Django was created, over ten years ago, the web was a less complicated place. The majority of web pages were static. Database-backed, Model/View/Controller-style web apps were the new spiffy thing. Ajax was barely starting to be used, and only in narrow contexts.&lt;/p&gt;
+
+&lt;p&gt;The web circa 2016 is significantly more powerful. The last few years have seen the rise of the so-called “real-time” web: apps with much higher interaction between clients and servers and peer-to-peer. Apps comprised of many services (a.k.a. microservices) are the norm. And, new web technologies allow web apps to go in directions we could only dream of a decade ago. One of these core technologies are WebSockets: a new protocol that provides full-duplex communication — a persistent, open connection between the client and the server, with either able to send data at any time.&lt;/p&gt;
+
+&lt;p&gt;In this new world, Django shows its age. At its core, Django is built around the simple concept of requests and responses: the browser makes a request, Django calls a view, which returns a response that’s sent back to the browser:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/django-asgi-websockets.png&quot; alt=&quot;DjangChannels&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This doesn’t work with WebSockets! The view is only around for the lifespan of a single request, and there’s no mechanism to hold open a connection or send data down to the client without an associated request.&lt;/p&gt;
+
+&lt;p&gt;Thus: Django Channels. Channels, in a nutshell, replaces the “guts” of Django — the request/response cycle — with messages that are sent across channels. Channels allows Django to support WebSockets in a way that’s very similar to traditional HTTP views. Channels also allow for background tasks that run on the same servers as the rest of Django. HTTP requests continue to behave the same as before, but also get routed over channels. Thus, under Channels Django now looks like this:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/django-wsgi.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As you can see, Channels introduces some new concepts to Django:&lt;/p&gt;
+
+&lt;p&gt;Channels are essentially task queues: messages get pushed onto the channel by producers, and then given to one of the consumers listening on that channel. If you’ve used channels in Go, the concept should be fairly familiar. The main difference is that Django channels work across a network and allow producers and consumers to run transparently across many dynos and/or machines. This network layer is called the channel layer. Channels is designed to use Redis as its preferred channel layer, though there is support for other types (and a first-class API for creating custom channel layers). There are neat and subtle technical details; consult the documentation for the full story.&lt;/p&gt;
+
+&lt;p&gt;Right now, Channels is available as a stand-alone app that works with Django 1.9. The plan is to roll Channels into Django for the 1.10 release, due out some time this summer.&lt;/p&gt;
+
+&lt;p&gt;I believe that Channels will be an incredible imporant addition to Django: they allow Django to move smoothly into this new age of web development. Although these APIs aren’t part of Django yet, they will be soon! So, now’s a perfect time to start learning about Channels: you can learn about the future of Django before it lands.&lt;/p&gt;
+
+&lt;h2 id=&quot;getting-started-how-to-make-a-real-time-chat-app-in-django&quot;&gt;Getting started: how to make a real-time chat app in Django&lt;/h2&gt;
+&lt;p&gt;As an example, I’ve built a simple real-time chat app — like a very, very light-weight Slack. There are a bunch of rooms, and everyone in the same room can chat, in real-time, with each other (using WebSockets).&lt;/p&gt;
+
+&lt;p&gt;You can visit my deployment of the example online, check out the code on GitHub, or deploy your own copy with this button (which requires a free Heroku account, so sign up for that first):&lt;/p&gt;
+
+&lt;p&gt;Deploy&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;h4 id=&quot;note&quot;&gt;Note:&lt;/h4&gt;
+  &lt;p&gt;you’ll need to scale the worker process type up after using the button. Use the Dashboard, or run heroku ps:scale web=1:free worker=1:free.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;For in-depth details on how the app works — including why you need worker dynos! — read on. I’ll walk through the steps to take to build this app, and highlight the import bits and concepts along the way.&lt;/p&gt;
+
+&lt;h3 id=&quot;first-steps--its-still-django&quot;&gt;First steps — it’s still Django&lt;/h3&gt;
+&lt;p&gt;Although there are differences under the hood, this is still the same Django we’ve been using for ten years. So the initial steps are the same as any Django app. (If you’re new to Django, you might want to check out Getting Started With Python on Heroku and/or the Django Girls Tutorial.) After creating a project, we can define model to represent a chat room, and the messages within it (chat/models.py):&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Room&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SlugField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;unique&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Model&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ForeignKey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Room&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;related_name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;messages&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;handle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TextField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;timestamp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;models&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DateTimeField&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;default&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;timezone&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;now&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db_index&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(In this, and all subsequent examples, I’ve trimmed the code down to the bare minimum, so we can focus on the important bits. For the full messy detailed code, see the project on Github.)&lt;/p&gt;
+
+&lt;p&gt;And then a view (chat/views.py, and the associated urls.py and chat/room.html template):
+def chat_room(request, label):&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &lt;span class=&quot;c&quot;&gt;# If the room with the given label doesn&#39;t exist, automatically create it&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;# upon first visit (a la etherpad).&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;created&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_or_create&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# We want to show the last 50 messages, ordered most-recent-last&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;reversed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;order_by&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;-timestamp&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;chat/room.html&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&#39;room&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&#39;messages&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;At this point, we have a functioning — if unexciting — Django app. If you run this with a standard Django install, you’d be able to see existing chat rooms and transcripts, but not interact with them in any way. Real-time chat doesn’t work — for that we need something that can handle WebSockets.&lt;/p&gt;
+
+&lt;h2 id=&quot;where-were-going&quot;&gt;Where we’re going&lt;/h2&gt;
+&lt;p&gt;To get a handle on what needed to be done on the backend, let’s look at the client code. You can find it in chat.js — and there isn’t much of it! First, we create a websocket:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var ws_scheme = window.location.protocol == &quot;https:&quot; ? &quot;wss&quot; : &quot;ws&quot;;
+var chat_socket = new ReconnectingWebSocket(ws_scheme + &#39;://&#39; + window.location.host + &quot;/chat&quot; + window.location.pathname);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Like HTTP and HTTPS, the WebSocket protocol comes in secure (WSS) and insecure (WS) flavors. We need to make sure to use the “correct” flavor.&lt;/li&gt;
+  &lt;li&gt;Because Heroku’s router has a 60-second timeout, I use a little shim around the browser WebSocket that automatically reconnects if the socket gets disconnected. (Thanks to Kenneth Reitz, who pointed this out in his Flask WebSocket example.)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Next, we’ll wire up a callback so that when the form’s submitted, we send data over the WebSocket (rather than POSTing it):&lt;/p&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;#chatform&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;on&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;submit&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;#handle&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
+        &lt;span class=&quot;na&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;#message&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;val&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;chat_socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can send any text data we’d like over the WebSocket. Like most APIs, JSON is easiest, so we’ll bundle up the data as JSON and send it that way.&lt;/p&gt;
+
+&lt;p&gt;Finally, we need to wire up a callback to fire when new data is received on the WebSocket:&lt;/p&gt;
+
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;chatsock&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;onmessage&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;nx&quot;&gt;$&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;#chat&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;tr&amp;gt;&#39;&lt;/span&gt; 
+        &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;td&amp;gt;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;timestamp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;/td&amp;gt;&#39;&lt;/span&gt; 
+        &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;td&amp;gt;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handle&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;/td&amp;gt;&#39;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;td&amp;gt;&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39; &amp;lt;/td&amp;gt;&#39;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&#39;&amp;lt;/tr&amp;gt;&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Simple stuff: just append a row to our transcript table, pulling data out of the received message. If I run this code now, it won’t work — there’s nothing listening to WebSocket connections, just HTTP. So now, let’s turn to connecting WebSockets.&lt;/p&gt;
+
+&lt;h2 id=&quot;installing-and-setting-up-channels&quot;&gt;Installing and setting up Channels&lt;/h2&gt;
+&lt;p&gt;To “channel-ify” this app, we’ll need to do three things: install Channels, set up a channel layer, define channel routing, and modify our project to run under Channels (rather than WSGI).&lt;/p&gt;
+
+&lt;h3 id=&quot;install-channels&quot;&gt;1. Install Channels&lt;/h3&gt;
+&lt;p&gt;To install Channels, simply pip install channels, then add “channels” to your INSTALLED_APPS setting. Installing Channels allows Django to run in “channel mode”, swapping out the request/response cycle with the channel-based architecture described above. (For backwards-compatibility, you can still run Django in WSGI mode, but WebSockets and all the other Channel features won’t work in this backwards-compatible mode.)&lt;/p&gt;
+
+&lt;h3 id=&quot;choose-a-channel-layer&quot;&gt;2. Choose a channel layer&lt;/h3&gt;
+&lt;p&gt;Next, we need to define a channel layer. This is the transport mechanism that Channels uses to pass messages from producers (message senders) to consumers. It’s a type of message queue with some specific properties (see the Channels documentation for details).&lt;/p&gt;
+
+&lt;p&gt;We’ll use Redis for our channel layer: it’s the preferred production-quality channel layer, and the obvious choice when deploying to Heroku. There are also in-memory and database-backed channels layers, but those are more suited to local development or low-traffic usage. (For more details, again refer to the documentation.)&lt;/p&gt;
+
+&lt;p&gt;But first: because the Redis channel layer is implemented in a different package, we’ll need to pip install asgi_redis. (I’ll talk a bit more about what “ASGI” is below.) Then, we define our channel layer in the CHANNEL_LAYERS setting:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;CHANNEL_LAYERS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;default&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;BACKEND&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;asgi_redis.RedisChannelLayer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;CONFIG&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;hosts&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;REDIS_URL&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;redis://localhost:6379&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)],&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;ROUTING&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;chat.routing.channel_routing&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Note that we’re pulling the Redis connection URL out of the environ, to future-proof for when we eventually deploy to Heroku.&lt;/p&gt;
+
+&lt;h3 id=&quot;channel-routing&quot;&gt;3. Channel routing&lt;/h3&gt;
+&lt;p&gt;In CHANNEL_LAYERS, we’ve told Channel where to look for our channel routing — chat.routing.channel_routing. Channel routing is a very similar concept to URL routing: URL routing maps URLs to view functions; channel routing maps channels to consumer functions. Also similar to urls.py, by convention channel routes live in a routing.py. For now, we’ll just create an empty one:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;channel_routing = {}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(We’ll see a few channel routes below, when we wire up WebSockets.)&lt;/p&gt;
+
+&lt;p&gt;You’ll notice that our example app has both a urls.py and a routing.py: we’re using the same app to handle HTTP requests and WebSockets. This is expected, and typical: Channels apps are still Django apps, so all the features you except from Django — views, forms, models, etc. — continue to work as they did pre-Channels.&lt;/p&gt;
+
+&lt;h3 id=&quot;run-with-channels&quot;&gt;4. Run with channels&lt;/h3&gt;
+&lt;p&gt;Finally, we need to swap out Django’s HTTP/WSGI-based request handler, for the one built into channels. This is based around an emerging standard called ASGI (Asynchronous Server Gateway Interface), so we’ll define that handler in an asgi.py file:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;channels.asgi&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setdefault&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;DJANGO_SETTINGS_MODULE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;chat.settings&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;channel_layer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;channels&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;asgi&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_channel_layer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(In the future, Django will probably auto-generate this file, like it currently does for wsgi.py.)&lt;/p&gt;
+
+&lt;p&gt;At this point, if we got everything right, we should be able to run the app under channels. The Channels interface server is called Daphne, and we can run our app with it like so:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;daphne chat.asgi:channel_layer --port 8888
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;** If we now visit http://localhost:8888/ we should see…. nothing happen. This might be confusing, until you remember that Channels splits Django into two parts: the front-end interface server, Daphne, and the backend message consumers. So to actually handle HTTP requests, we need to run a worker:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python manage.py runworker
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now, requests should go through. This illustrates something pretty neat: Channels continues to handle HTTP(S) requests just fine, but it does it in a complete different way. this isn’t too different from running Celery with Django, where you’d run a Celery worker alongside a WSGI server. Now, though, all tasks — HTTP requests, WebSockets, background tasks — get run in the worker.&lt;/p&gt;
+
+&lt;p&gt;(By the way, we can still run python manage.py runserver for easy local testing. When we do, Channels simply runs Daphne and a worker in the same process.)&lt;/p&gt;
+
+&lt;h2 id=&quot;websocket-consumers&quot;&gt;WebSocket consumers&lt;/h2&gt;
+&lt;p&gt;All right, enough setup; let’s get to the good parts.&lt;/p&gt;
+
+&lt;p&gt;Channels maps WebSocket connections to three channels:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;A message is sent to the websocket.connect channels the first time a new client (i.e. browser) connects via a WebSocket. When this happens, we’ll record that the client is now “in” a given chat room.&lt;/li&gt;
+  &lt;li&gt;Each message the client sends on the socket gets sent across the websocket.receive channel. (These are just messages received from the browser; remember that channels are one-direction. We’ll see how to send messages back to the client in a bit.) When a message is received, we’ll broadcast that message to all the other clients in the “room”.&lt;/li&gt;
+  &lt;li&gt;Finally, when the client disconnects, a message is sent to websocket.disconnect. When that happens, we’ll remove the client from the “room”.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;First, we need to hook each of these channels up in routing.py:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumers&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;channel_routing&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;websocket.connect&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ws_connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;websocket.receive&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ws_receive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;websocket.disconnect&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;consumers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ws_disconnect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Pretty simple stuff: just connect each channel to an appropriate function. Now, let’s look at those functions. By convention we’ll put these functions in a consumers.py (but, like views, these could be anywhere.)&lt;/p&gt;
+
+&lt;p&gt;Let’s look at ws_connect first:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;channels&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Group&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;channels.sessions&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;channel_session&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.models&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Room&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@channel_session&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ws_connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prefix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;path&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;/&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;/&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;chat-&#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reply_channel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;channel_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;room&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(For clarity, I’ve stripped all the error handling and logging from this code. To see the full version, see consumers.py on GitHub).
+This is dense; let’s go line-by-line:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;The client will connect to a WebSocket with a URL of the form /chat/{label}/, where label maps to a Room’s label attribute. Since all WebSocket messages (regardless of URL) get sent to the same set of channel consumers, we’ll need to work out which Room we’re talking about by parsing the message path.&lt;br /&gt;
+Notice that the consumer is responsible for parsing the WebSocket path by reading message[‘path’] . This is different from traditional URL routing, where Django’s urls.py routes based on path; If you have multiple WebSocket URLs, you’ll need to route to different functions yourself. (This is one place where the “early-days” aspects of Channels shows; it’s quite likely that future versions of Channels will include WebSocket URL routing.)&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Now, we can look up the Room object from the database.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;This line’s the key to making chatting work. We need to know how to send messages back to this client. For that, we’ll use the message’s reply_channel — every message will have a reply_channel attribute, which we can use to send messages back to the client. (We don’t need to create that channel ourselves; Channels creates it for us.)&lt;br /&gt;
+However, it’s not going to be good enough to just send messages to that one channel; when a user chats, we want to send messages to everyone who’s connected to that room. For that, we’ll use a channel group. A group is simply a connection of channels that you can broadcast messages to. So, we’ll add this message’s reply_channel to a group specific to this chat room.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Finally, subsequent messages (receive/disconnect) won’t contain the URL anymore (since the connection is already active). So, we need a way of “remembering” which room a WebSocket connection maps to. For this, we can use a channel session. Channel sessions are very similar to Django’s session framework: they persist data between channel messages on an attribute called message.channel_session. Adding the @channel_session decorator to a consumer is all we need to make sessions work. (The documentation has more details on how channel sessions work).&lt;br /&gt;
+Now that a client is connected, let’s take a look at ws_receive. This consumer will get called each time a message is received on the WebSocket:&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@channel_session&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ws_receive&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;channel_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;room&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;objects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;loads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;text&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;m&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;room&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;create&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;handle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;handle&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;message&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;chat-&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;send&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;text&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;m&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;as_dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(Once again, I’ve stripped error handling and logging for clarity.)&lt;/p&gt;
+
+&lt;p&gt;The first few few lines are pretty simple: extract the room from the channel_session, look it up in the database, parse the JSON message, and store the message in the database as a Message object. After that, all we have to do is broadcast this new message to everyone in the chat room, and for this we’ll use the same channel group as before. Group.send() will take care of sending this message to every reply_channel added to the group.&lt;/p&gt;
+
+&lt;p&gt;After that, ws_disconnect is very simple:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nd&quot;&gt;@channel_session&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ws_disconnect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;label&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;channel_session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;room&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;chat-&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;label&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;discard&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reply_channel&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here, after looking up the room in the channel session, we disconnect (discard) the reply_channel from the chat group. That’s it!&lt;/p&gt;
+
+&lt;h2 id=&quot;deploying-and-scaling&quot;&gt;Deploying and scaling&lt;/h2&gt;
+&lt;p&gt;Now that we’ve got WebSockets hooked up and working, we can test it out by running daphne and runworker, as above (or by running manage.py runserver). But it’s lonely talking to yourself, so let’s see what it takes to get this running on Heroku!&lt;/p&gt;
+
+&lt;p&gt;For the most part, a Channels app works the same as an Python app as Heroku — specify requirements in requirements.txt, define a Python runtime in runtime.txt, deploy with the standard git push heroku master, etc. (For a refresher, see the Getting Started with Python on Heroku tutorial.) I’ll just highlight the differences between a Channels app and a standard Django app:&lt;/p&gt;
+
+&lt;h3 id=&quot;procfile-and-process-types&quot;&gt;1. Procfile and process types&lt;/h3&gt;
+&lt;p&gt;Because Channels apps need both a HTTP/WebSocket server and a backend channel consumer, the Procfile needs to define both of these types. Here’s our Procfile:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;web: daphne chat.asgi:channel_layer --port $PORT --bind 0.0.0.0 -v2
+worker: python manage.py runworker -v2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;And, when we do our initial deploy, we’ll need to make sure both process types are running (Heroku will only start the web dyno by default):&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;heroku ps:scale &lt;span class=&quot;nv&quot;&gt;web&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1:free &lt;span class=&quot;nv&quot;&gt;worker&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1:free
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;(A simple app will run within the limits of Heroku’s free or hobby tiers, though for real-world usage you’ll probably want to upgrade to production dynos to handle better throughput.)&lt;/p&gt;
+
+&lt;h3 id=&quot;addons-postgres-and-redis&quot;&gt;2. Addons: Postgres and Redis&lt;/h3&gt;
+&lt;p&gt;Like most Django apps, you’ll want a database, and Heroku Postgres is perfect for that. However, Channels also requires a Redis instance to act as the channel layer. So, we’ll want to create both a Heroku Postgres and a Heroku Redis instance when deploying our app for the first time:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;heroku addons:create heroku-postgresql
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;heroku addons:create heroku-redis
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;scaling&quot;&gt;3. Scaling&lt;/h3&gt;
+&lt;p&gt;Since Channels is fairly new, the scalability issues aren’t quite known yet. However, I can make a few guesses based on the architecture and some early performance tests I ran. The key is that Channels splits processes between those responsible for handling connections (daphne), and those responsible for handling channel messages (runworker). This means that:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The throughput of channels — HTTP requests, WebSocket messages, or custom channel messages — is mostly determined by the number of worker dynos. So, if you need to handle greater request volume, you’ll do it by scaling up worker dynos (e.g. heroku ps:scale worker=3).&lt;/li&gt;
+  &lt;li&gt;The level of concurrency — the number of current open connections — will mostly be limited by the scale of the front-end web dyno. So, if you needed to handle more concurrent WebSocket connections, you’d scale up the web dyno (e.g. heroku ps:scale worker=2)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Based on my early performance tests, Daphne is quite capable of handling many hundreds of concurrent connections on a Standard-1X dyno, so I expect it’ll be rare to have to scale up the web dynos. The number of worker dynos in a Channels app seems to map fairly closely to the number of needed web dynos in a similar old-style Django app.&lt;/p&gt;
+
+&lt;h2 id=&quot;whats-next&quot;&gt;What’s next?&lt;/h2&gt;
+&lt;p&gt;WebSocket support is a huge new feature for Django, but it only scratches the surface of what Channels can do. Remember: Channels is a general-purpose utility for running background tasks. Thus, many features that used to require Celery or Python-RQ could be done using Channels instead. Channels can’t replace dedicated task queues entirely: it has some important limitations, including at-most-once delivery, that don’t make it suitable for all use cases. See the documentation for full details. Still, Channels can make common background tasks much simpler. For example, you could easily use Channels to perform image thumbnailing, send out emails, tweets, or SMSes, run expensive data calculations, and more.&lt;/p&gt;
+
+&lt;p&gt;As for the Channels itself: plan is to include Channels in Django 1.10, which is scheduled for release this summer. This means that now’s a great time to try it out and give feedback: your input could help drive the direction of this critical feature. If you want to get involved, check out the guide to Contributing to Django, then hop onto the django-developers mailing list to share your feedback.&lt;/p&gt;
+
+&lt;p&gt;Finally: major thanks to Andrew Godwin for his work on Channels. This is a tremendously exciting new direction for Django, and I’m thrilled to see it starting to take shape.&lt;/p&gt;
+
+&lt;h2 id=&quot;further-reading&quot;&gt;Further Reading&lt;/h2&gt;
+&lt;p&gt;For more information about Channels, please see the Channels documentation, which includes a ton more details and reference, including:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Answers to some Frequently Asked Questions about Channels.&lt;/li&gt;
+  &lt;li&gt;The plan of record for integrating Channels into Django.&lt;/li&gt;
+  &lt;li&gt;The formal Asynchronous Server Gateway Interface (ASGI) spec (if you really want all the technical details!)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For more information on Python on Heroku, visit Python on Heroku in Dev Center. A couple of particularly good articles I recommend are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Getting Started with Python on Heroku&lt;/li&gt;
+  &lt;li&gt;Configuring Django apps for Heroku&lt;/li&gt;
+&lt;/ul&gt;
+
+</description>
+        <pubDate>Wed, 27 Jul 2016 00:00:00 +0800</pubDate>
+        <link>http://cundi.github.io/2016/07/27/RealTime-Django-with-Django-Channels/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2016/07/27/RealTime-Django-with-Django-Channels/</guid>
+        
+        <category>DjangoChannel</category>
+        
+        
+        <category>Django</category>
+        
+      </item>
     
       <item>
         <title>使用Celery和Redis自动化Django任务队列</title>
@@ -24,8 +401,6 @@
   &lt;li&gt;&lt;a href=&quot;#celery-daemons--supervisord&quot; id=&quot;markdown-toc-celery-daemons--supervisord&quot;&gt;Celery Daemons &amp;amp; Supervisord&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#wrap-up&quot; id=&quot;markdown-toc-wrap-up&quot;&gt;Wrap Up&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt;Task Queue: a robust, asynchronous job handler and message broker enabling you to run and consume back-end functions based on system events rather than human intervention. A Django and Celery powered application can quickly respond to user requests while the task automation manager handles longer running requests through the use of a task queuing system.&lt;/p&gt;
 
 &lt;h2 id=&quot;automate-the-django-task-queue-with-celery-and-redis&quot;&gt;Automate the Django Task Queue with Celery and Redis&lt;/h2&gt;
 &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;原始链接，http://www.craigderington.me/configure-django-task-queue-with-celery-and-redis/&lt;/code&gt;&lt;/p&gt;
@@ -281,9 +656,9 @@ taskapp-celery:  added process group
 &lt;h2 id=&quot;wrap-up&quot;&gt;Wrap Up&lt;/h2&gt;
 &lt;p&gt;Using Redis with Celery running in the application background is an easy way to automate many of the processes required to keep your application humming along with very little overhead. Use supervisord to monitor the task queue. In some of my recent projects, I use Celery tasks to make RESTful calls against a Django REST API, which in turn triggers both GET and POST methods to specified API endpoints to distribute data to multiple servers.&lt;/p&gt;
 </description>
-        <pubDate>Tue, 10 Feb 2015 23:14:54 +0800</pubDate>
-        <link>http://cundi.github.io/2015/02/10/Automate-Django-Queue-Tasks-with-Celery-and-Redis/</link>
-        <guid isPermaLink="true">http://cundi.github.io/2015/02/10/Automate-Django-Queue-Tasks-with-Celery-and-Redis/</guid>
+        <pubDate>Thu, 07 Jul 2016 00:00:00 +0800</pubDate>
+        <link>http://cundi.github.io/2016/07/07/git-clone-not-master-branch/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2016/07/07/git-clone-not-master-branch/</guid>
         
         <category>Django</category>
         
@@ -293,6 +668,37 @@ taskapp-celery:  added process group
         
         
         <category>Django</category>
+        
+      </item>
+    
+      <item>
+        <title>hello jekyll!</title>
+        <description>
+&lt;p&gt;You’ll find this post in your &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run &lt;code class=&quot;highlighter-rouge&quot;&gt;jekyll serve&lt;/code&gt;, which launches a web server and auto-regenerates your site when a file is updated.&lt;/p&gt;
+
+&lt;p&gt;To add new posts, simply add a file in the &lt;code class=&quot;highlighter-rouge&quot;&gt;_posts&lt;/code&gt; directory that follows the convention &lt;code class=&quot;highlighter-rouge&quot;&gt;YYYY-MM-DD-name-of-post.ext&lt;/code&gt; and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.&lt;/p&gt;
+
+&lt;p&gt;Jekyll also offers powerful support for code snippets:&lt;/p&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hi, &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;print_hi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;Tom&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints &#39;Hi, Tom&#39; to STDOUT.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Check out the &lt;a href=&quot;http://jekyllrb.com&quot;&gt;Jekyll docs&lt;/a&gt; for more info on how to get the most out of Jekyll. File all bugs/feature requests at &lt;a href=&quot;https://github.com/jekyll/jekyll&quot;&gt;Jekyll’s GitHub repo&lt;/a&gt;. If you have questions, you can ask them on &lt;a href=&quot;https://github.com/jekyll/jekyll-help&quot;&gt;Jekyll’s dedicated Help repository&lt;/a&gt;.&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 10 Feb 2015 00:00:00 +0800</pubDate>
+        <link>http://cundi.github.io/2015/02/10/welcome-to-jekyll/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2015/02/10/welcome-to-jekyll/</guid>
+        
+        <category>jekyll</category>
+        
+        
+        <category>jekyll</category>
         
       </item>
     

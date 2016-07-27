@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "使用Celery和Redis自动化Django任务队列"
-date:   2015-02-10 15:14:54
 categories: Django
 tags:   Django  Celery  Redis
 ---
@@ -9,15 +8,13 @@ tags:   Django  Celery  Redis
 * content
 {:toc}
 
-Task Queue: a robust, asynchronous job handler and message broker enabling you to run and consume back-end functions based on system events rather than human intervention. A Django and Celery powered application can quickly respond to user requests while the task automation manager handles longer running requests through the use of a task queuing system.  
-
-
-
-
 ## Automate the Django Task Queue with Celery and Redis
 `原始链接，http://www.craigderington.me/configure-django-task-queue-with-celery-and-redis/`  
 
 Task Queue: a robust, asynchronous job handler and message broker enabling you to run and consume back-end functions based on system events rather than human intervention. A Django and Celery powered application can quickly respond to user requests while the task automation manager handles longer running requests through the use of a task queuing system.  
+
+
+
 
 >Celery uses a message broker to pass messages between your application and the Celery worker process. In this tutorial, I am going to use Redis as the message broker and Celery as the task manager. As Redis is a persistent, in-memory data structure server, it should not be used to manage application state; as the state may not be maintained during a reboot or other system type event requiring the server to be re-started.
 

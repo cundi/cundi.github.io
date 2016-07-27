@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ml</title>
+    <description></description>
+    <link>http://cundi.github.io/</link>
+    <atom:link href="http://cundi.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Wed, 27 Jul 2016 20:43:53 +0800</pubDate>
+    <lastBuildDate>Wed, 27 Jul 2016 20:43:53 +0800</lastBuildDate>
+    <generator>Jekyll v3.1.6</generator>
+    
+      <item>
+        <title>使用Celery和Redis自动化Django任务队列</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#automate-the-django-task-queue-with-celery-and-redis&quot; id=&quot;markdown-toc-automate-the-django-task-queue-with-celery-and-redis&quot;&gt;Automate the Django Task Queue with Celery and Redis&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section&quot; id=&quot;markdown-toc-section&quot;&gt;开始前的准备&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#redis&quot; id=&quot;markdown-toc-redis&quot;&gt;安装Redis&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#djangocelery&quot; id=&quot;markdown-toc-djangocelery&quot;&gt;对Django应用添加Celery支持&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#celery&quot; id=&quot;markdown-toc-celery&quot;&gt;创建第一个Celery任务&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#section-1&quot; id=&quot;markdown-toc-section-1&quot;&gt;测试任务应用&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#queuing-up-tasks-for-execution&quot; id=&quot;markdown-toc-queuing-up-tasks-for-execution&quot;&gt;Queuing Up Tasks for Execution&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#celery-daemons--supervisord&quot; id=&quot;markdown-toc-celery-daemons--supervisord&quot;&gt;Celery Daemons &amp;amp; Supervisord&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#wrap-up&quot; id=&quot;markdown-toc-wrap-up&quot;&gt;Wrap Up&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Task Queue: a robust, asynchronous job handler and message broker enabling you to run and consume back-end functions based on system events rather than human intervention. A Django and Celery powered application can quickly respond to user requests while the task automation manager handles longer running requests through the use of a task queuing system.&lt;/p&gt;
+
+&lt;h2 id=&quot;automate-the-django-task-queue-with-celery-and-redis&quot;&gt;Automate the Django Task Queue with Celery and Redis&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;原始链接，http://www.craigderington.me/configure-django-task-queue-with-celery-and-redis/&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Task Queue: a robust, asynchronous job handler and message broker enabling you to run and consume back-end functions based on system events rather than human intervention. A Django and Celery powered application can quickly respond to user requests while the task automation manager handles longer running requests through the use of a task queuing system.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Celery uses a message broker to pass messages between your application and the Celery worker process. In this tutorial, I am going to use Redis as the message broker and Celery as the task manager. As Redis is a persistent, in-memory data structure server, it should not be used to manage application state; as the state may not be maintained during a reboot or other system type event requiring the server to be re-started.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&quot;section&quot;&gt;开始前的准备&lt;/h2&gt;
+&lt;p&gt;I am using a clean AWS instance running Ubuntu 14.04 in a free T2-micro tier for this demonstration. The first step is to add Celery to our Django application inside our virtualenv. Our project directory is located at /var/www/ and the Django project is called django_dev.&lt;/p&gt;
+
+&lt;h2 id=&quot;redis&quot;&gt;安装Redis&lt;/h2&gt;
+&lt;p&gt;At our Ubuntu terminal, update the package manager.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo apt-get update
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo apt-get install redis-server
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Then check the Redis version to ensure the server is listening.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;redis-server --version
+Redis server &lt;span class=&quot;nv&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2.8.4 &lt;span class=&quot;nv&quot;&gt;sha&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0000000:0...  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Is Redis up?&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;redis-cli
+&lt;span class=&quot;gp&quot;&gt;&amp;gt; &lt;/span&gt;PING
+PONG  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Next, activate the virtual environment and install Celery.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;/var/www/django_dev~$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; .env/bin/activate
+&lt;span class=&quot;gp&quot;&gt;(.env)/var/www/django_dev~$ &lt;/span&gt;pip install celery[redis]
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;...&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Successfully installed pytz celery billiard kombu redis anyjson amqp  
+Cleaning up...  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;djangocelery&quot;&gt;对Django应用添加Celery支持&lt;/h2&gt;
+&lt;p&gt;We have to add several Celery specific settings to our Django applications settings.py. I prefer to keep my settings outside of the named inner project directory.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;config/settings/common.py
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Celery
+BROKER_URL = &#39;redis://localhost:6379/0&#39;  
+CELERY_ACCEPT_CONTENT = [&#39;json&#39;]  
+CELERY_TASK_SERIALIZER = &#39;json&#39;  
+CELERY_RESULT_SERIALIZER = &#39;json&#39; 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Next, create celery.py and save it in your config.settings directory. This will start Celery and create a Celery application.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;__future__&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;absolute_import&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;celery&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Celery&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;config.settings&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;common&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# set Django settings module for celery program.&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;environ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;setdefault&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;DJANGO_SETTINGS_MODULE&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;config.settings&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Celery&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;hello_django&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;# Using a string here means the worker will not have to&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# pickle the object when using Windows.&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;config_from_object&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;config.settings&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;app&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;autodiscover_tasks&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;lambda&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;settings&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;INSTALLED_APPS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To ensure that the Celery application starts everytime the Django app is started, we have to add an &lt;code class=&quot;highlighter-rouge&quot;&gt;__init.py__&lt;/code&gt; to our project folder.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;__future__&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;absolute_import&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;.celery&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;app&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;celery_app&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;celery&quot;&gt;创建第一个Celery任务&lt;/h3&gt;
+&lt;p&gt;Add a new app to our Django project and ass some tasks. First, create the application.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;(.env)/var/www/django_dev~$ &lt;/span&gt;django-admin startapp taskapp
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Add the new app to our config settings common.py file.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;LOCAL_APPS&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;  
+    &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;taskapp&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now, in our taskapp app folder, add a new file tasks.py and add the following code to create the first Celery task.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;__future__&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;absolute_import&lt;/span&gt;  
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;celery&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shared_task&lt;/span&gt;
+
+
+&lt;span class=&quot;nd&quot;&gt;@shared_task&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;tasktest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;  
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;The task executed with argument &quot;&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s&quot; &#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you have followed this project setup, your projct directory will look like this…&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/var/www/django_dev
+|--config
+|  | -- settings
+|       | -- common.py
+|       | -- local.py
+|       | -- production.py
+|       | -- dev.py
+|  | -- wsgi.py
+|  | -- celery.py
+|  | -- urls.py
+| -- manage.py
+| -- taskapp
+|    | -- __init__.py
+|    | -- models.py
+|    | -- tests.py
+|    | -- views.py
+|    | -- urls.py
+|    | -- tasks.py
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;section-1&quot;&gt;测试任务应用&lt;/h2&gt;
+&lt;p&gt;In a real production environment, you would want your Celery task queue daemonized, however, for our demonstration, we will just call it from the command line and inspect the output.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PYTHONPATH&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/var/www/django_dev/config.settings:&lt;span class=&quot;nv&quot;&gt;$PYTHONPATH&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;/var/www/django_dev/bin/celery --app&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;config.settings.celery:app worker --loglevel&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;INFO
+-------------------------- celery@django v3.1.20
+
+...
+
+-- &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - &lt;span class=&quot;k&quot;&gt;**********&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;config]
+-- &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - &lt;span class=&quot;k&quot;&gt;**********&lt;/span&gt;.&amp;gt; app:         taskapp
+-- &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - &lt;span class=&quot;k&quot;&gt;**********&lt;/span&gt;.&amp;gt; transport:   redis://localhost:6379/0
+-- &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - &lt;span class=&quot;k&quot;&gt;**********&lt;/span&gt;.&amp;gt; results:     disabled
+-- &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; - &lt;span class=&quot;k&quot;&gt;**********&lt;/span&gt;.&amp;gt; concurrency: 2 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;prefork&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+...
+---- &lt;span class=&quot;k&quot;&gt;************&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;queues]
+&lt;span class=&quot;gp&quot;&gt;-----------------.&amp;gt; &lt;/span&gt;celery     &lt;span class=&quot;nv&quot;&gt;exchange&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;celery&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;direct&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;celery
+
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;tasks]
+. taskapp.tasks.test
+
+
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 08:45:30, 849: INFO/MainProcess] Connected to redis://localhost:6379/0
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 08:45:30, 852: INFO/MainProcess] mingle:  searching forneighbors
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 08:45:31, 236: INFO/MainProcess] mingle:  all alone
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 08:45:31, 428: WARNING/MainProcess] celery@django ready
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As long as the configuration settings are all OK, you will be greeted by a welcome screen like above. The [tasks] section will list all tasks discovered in all apps within your Django project directory.&lt;/p&gt;
+
+&lt;h2 id=&quot;queuing-up-tasks-for-execution&quot;&gt;Queuing Up Tasks for Execution&lt;/h2&gt;
+&lt;p&gt;In a separate terminal instance, start your project’s virtual environment and launch a new task.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;/var/www/django_dev~$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; .env/bin/activate
+&lt;span class=&quot;gp&quot;&gt;(.env)/var/www/django_dev~$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;taskapp
+&lt;span class=&quot;gp&quot;&gt;(.env)/var/www/django_dev/taskapp~$ &lt;/span&gt;python manage.py shell
+Python 2.7.6 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;default June 22 2015 17:58:13&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;GCC 4.8.2] on linux2
+Type &lt;span class=&quot;s2&quot;&gt;&quot;help&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;copyright&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;credits&quot;&lt;/span&gt; or &lt;span class=&quot;s2&quot;&gt;&quot;license&quot;&lt;/span&gt; formore information  
+&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;InteractiveConsole&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;from taskapp.tasks import tasktest
+&lt;span class=&quot;gp&quot;&gt;&amp;gt;&amp;gt;&amp;gt; &lt;/span&gt;tasktest.delay&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&#39;This is only a test.&#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&amp;lt;AsyncResult:  67a43cf9-0b3f-4792-e746-2f3aa35e5b17
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now if you look at the Celery task terminal, you will notice task workers have started:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 10:30:24, 624: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;INFO/MainProcess] Received task taskapp.tasks.tasktest[67a43cf9-0b3f-4792-e746-2f3aa35e5b17]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;2016-03-01 10:30:24, 673: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;INFO/MainProcess] Task taskapp.tasks.tasktest[67a43cf9-0b3f-4792-e746-2f3aa35e5b17]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;celery-daemons--supervisord&quot;&gt;Celery Daemons &amp;amp; Supervisord&lt;/h2&gt;
+&lt;p&gt;Most Django devs run Celery as a daemon using a nifty little tool called supervisord that allows workers to be restarted in the event of a system reboot. To install supervisor, enter this command the terminal prompt.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get install supervisor  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As soon as supervisor is installed, you can add programs to it’s configuration file so it knows to watch those processes for changes and update the terminal accordingly.&lt;/p&gt;
+
+&lt;p&gt;Supervisors config file is located at /etc/supervisor/conf.d. For our example, we will create a supervisor config file to watch our Celery processes.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[program:  taskapp-celery
+command=/var/www/django_dev/bin/celery --app=taskapp.celery:app worker -- loglevel=INFO  
+directory=/var/www/django_dev/taskapp  
+user=tech-walker  
+stdout_logfile=/var/www/django_dev/logs/celery-worker.log  
+stderr_logfile=/var/www/django_dev/logs/celery-worker.log  
+autostart=true  
+autorestart=true  
+startsecs=10
+
+; need to wait for any tasks still running
+stopwaitsecs=900
+
+; send SIGKILL to destroy all processes as a group
+killasgroup=true
+
+; if rabbitmq is supervised, set it to a higher priority
+priority=998
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is a simple sample config file provided by the Celery team.&lt;/p&gt;
+
+&lt;p&gt;Now, create a file to store the application’s log messages.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;/var/www/django_dev:~$ &lt;/span&gt;mkdir logs
+&lt;span class=&quot;gp&quot;&gt;/var/www/django_dev:~$ &lt;/span&gt;touch logs/celery-worker.log
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Send a command to supervisord to re-read the config file and update the process.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo supervisorctl reread
+taskapp-celery:  available  
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sudo supervisorctl update
+taskapp-celery:  added process group  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Monitor the output of the Celery task process by examining the log file.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;tail -f /var/www/django_dev/logs/celery-worker.log
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;For more information on configuring Celery and options for monitoring the task queue status, check out the Celery User Guide.&lt;/p&gt;
+
+&lt;h2 id=&quot;wrap-up&quot;&gt;Wrap Up&lt;/h2&gt;
+&lt;p&gt;Using Redis with Celery running in the application background is an easy way to automate many of the processes required to keep your application humming along with very little overhead. Use supervisord to monitor the task queue. In some of my recent projects, I use Celery tasks to make RESTful calls against a Django REST API, which in turn triggers both GET and POST methods to specified API endpoints to distribute data to multiple servers.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 10 Feb 2015 23:14:54 +0800</pubDate>
+        <link>http://cundi.github.io/2015/02/10/Automate-Django-Queue-Tasks-with-Celery-and-Redis/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2015/02/10/Automate-Django-Queue-Tasks-with-Celery-and-Redis/</guid>
+        
+        <category>Django</category>
+        
+        <category>Celery</category>
+        
+        <category>Redis</category>
+        
+        
+        <category>Django</category>
+        
+      </item>
+    
+  </channel>
+</rss>

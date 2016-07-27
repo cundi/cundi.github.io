@@ -35,7 +35,7 @@ duoshuo_shortname: liuminglei
 # 百度统计 id，将统计代码替换为自己的百度统计id，即
 # hm.src = "//hm.baidu.com/hm.js?xxxxxxxxxxxx";
 # xxxxx字符串
-baidu_tongji_id: 6ac8747936c580ec73abe28d968eecd9
+baidu_tongji_id: ff8025d81f791854abb602844d95074f
 google_analytics_id: UA-81434031-1 # google 分析追踪id
 
 # Build settings

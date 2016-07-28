@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>设置Redis为Django的缓存引擎和会话管理器</title>
+    <meta name="description" content="  Configure Redis as Django’s Cache Engine and Session Storage ManagerConfigure Redis as Django’s Cache Engine and Session Storage Manager原始链接：http://www.cra...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href=" /css/fontawesome/css/font-awesome.min.css ">
+    <link rel="stylesheet" href=" /css/main.css ">
+    <link rel="canonical" href="http://cundi.github.io/2016/07/27/%E8%AE%BE%E7%BD%AERedis%E4%B8%BADjango%E7%9A%84%E7%BC%93%E5%AD%98%E5%BC%95%E6%93%8E%E5%92%8C%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86%E5%99%A8/">
+    <link rel="alternate" type="application/rss+xml" title="涵虚" href="http://cundi.github.io /feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?ff8025d81f791854abb602844d95074f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+    <script>
+    // google analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-81434031-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">涵虚</a>
+        <small>Back-end Dev Engineer</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>首页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>目录
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>设置Redis为Django的缓存引擎和会话管理器</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2016-07-27
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Django" title="Category: Django" rel="category">Django</a>&nbsp;
+    
+        <a href="/category/#Redis" title="Category: Redis" rel="category">Redis</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#Django" title="Tag: Django" rel="tag">Django</a-->
+        <a href="/tag/#Django" title="Tag: Django" rel="tag">Django</a>&nbsp;
+    
+        <!--a href="/tag/#Redis" title="Tag: Redis" rel="tag">Redis</a-->
+        <a href="/tag/#Redis" title="Tag: Redis" rel="tag">Redis</a>&nbsp;
+    
+        <!--a href="/tag/#Session" title="Tag: Session" rel="tag">Session</a-->
+        <a href="/tag/#Session" title="Tag: Session" rel="tag">Session</a>&nbsp;
+    
+        <!--a href="/tag/#%E7%BF%BB%E8%AF%91" title="Tag: 翻译" rel="tag">翻译</a-->
+        <a href="/tag/#翻译" title="Tag: 翻译" rel="tag">翻译</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#configure-redis-as-djangos-cache-engine-and-session-storage-manager" id="markdown-toc-configure-redis-as-djangos-cache-engine-and-session-storage-manager">Configure Redis as Django’s Cache Engine and Session Storage Manager</a></li>
+  <li><a href="#installing-redis" id="markdown-toc-installing-redis">Installing Redis</a></li>
+  <li><a href="#configure-redis" id="markdown-toc-configure-redis">Configure Redis</a></li>
+  <li><a href="#use-redis-with-django" id="markdown-toc-use-redis-with-django">Use Redis with Django</a></li>
+  <li><a href="#using-the-django-cache" id="markdown-toc-using-the-django-cache">Using the Django cache</a></li>
+  <li><a href="#use-django-redis-cache-inside-functions" id="markdown-toc-use-django-redis-cache-inside-functions">Use Django Redis Cache Inside Functions</a>    <ul>
+      <li><a href="#use-redis-for-django-session-storage" id="markdown-toc-use-redis-for-django-session-storage">Use Redis for Django Session Storage</a></li>
+    </ul>
+  </li>
+  <li><a href="#alternative-session-data-manager-without-cache" id="markdown-toc-alternative-session-data-manager-without-cache">Alternative Session Data Manager without Cache</a></li>
+  <li><a href="#wrapping-up" id="markdown-toc-wrapping-up">Wrapping Up</a></li>
+</ul>
+
+<h2 id="configure-redis-as-djangos-cache-engine-and-session-storage-manager">Configure Redis as Django’s Cache Engine and Session Storage Manager</h2>
+<p><code class="highlighter-rouge">原始链接：http://www.craigderington.me/configure-redis-as-djangos-cache-engine/</code></p>
+
+<p>Redis is an open-source, persistent, in-memory data structure server that stores it’s data in key-value pairs. Redis can be used as a database, cache or message broker. Redis data structures support a variety of formats including strings, lists, sets, hashes and sorted sets. More advanced data structures include bitmaps, hyper-logs, and geo-spatial index with radius queries. Redis has built in replication, Lua scripting and transactions. It offers different levels on on-disk persistence and provides high availability and automatic partitioning.</p>
+
+<p>Redis是一个开源的，持久化的，内存数据结构服务器，</p>
+
+<p>Due to it’s fast, in-memory data storage retrieval, Redis is an optimal solution to be used with Django; as both a cache engine and for session storage. The primary benefit is storing cache and session data separate from your application database, which prevents unnecessary data read and write operations and can provide a nice performance boost for your Django applications.</p>
+
+<h2 id="installing-redis">Installing Redis</h2>
+<p>Redis is written in C and works with Unix, BSD, Linux and OS X. For our test case, we will be installing Redis on Ubuntu 14.04. OK, let’s get cooking…</p>
+
+<p>Redis使用C编写，可以运行于Unix，BSD，Linux和OS X。</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>sudo apt-get update  
+sudo apt-get install redis-server  
+</code></pre>
+</div>
+
+<p>Once Redis is finished downloading and installing, check the redis-server for it’s version info to confirm it was installed correctly and is up and running.</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>redis-server --version  
+Redis server <span class="nv">v</span><span class="o">=</span>2.8.4 <span class="nv">sha</span><span class="o">=</span>00000000:0 <span class="nv">malloc</span><span class="o">=</span>jemalloc-3.4.1 <span class="nv">bits</span><span class="o">=</span>64 
+<span class="nv">build</span><span class="o">=</span>a44a05d76f06a5d9  
+</code></pre>
+</div>
+
+<h2 id="configure-redis">Configure Redis</h2>
+<p>I like to connect to Redis via a Unix socket instead of TCP. This simply alleviates Redis of the overhead of managing TCP connections.</p>
+
+<p>Configure Redis to communicate and accept direct socket connections, edit the /etc/redis/redis.conf file and comment out the BIND and PORT directives and uncomment the unixsocket directives.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>#comment out
+#port 6379
+#bind 127.0.0.1
+
+#uncomment
+unixsocket /var/run/redis/redis.sock  
+unixsocketperm 700  
+</code></pre>
+</div>
+
+<p>Save your changes and restart the Redis server.</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code>sudo service redis-server restart 
+</code></pre>
+</div>
+
+<p>After restarting the redis-server, check to make sure the server is listening and accepting connections.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>redis-cli  
+&gt; ping
+PONG
+</code></pre>
+</div>
+
+<p>Success! Our Redis server is up and running.</p>
+
+<h2 id="use-redis-with-django">Use Redis with Django</h2>
+<p>You will need to install the django-redis-cache module via pip in your Django project’s virtual environment in order for Django to use the Redis server for caching and session storage.</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">source</span> .env/bin/activate
+<span class="gp">(.env)$ </span>pip install django-redis-cache
+</code></pre>
+</div>
+
+<p>Then add the following Redis config statement to settings.py.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">CACHES</span> <span class="o">=</span> <span class="p">{</span>  
+    <span class="s">'default'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">'BACKEND'</span><span class="p">:</span> <span class="s">'redis_cache.RedisCache'</span><span class="p">,</span>
+        <span class="s">'LOCATION'</span><span class="p">:</span> <span class="s">'/var/run/redis/redis.sock'</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>You will also need to add the following lines to your Django Middleware classes section in settings.py:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">MIDDLEWARE_CLASSES</span> <span class="o">=</span> <span class="p">(</span>  
+    <span class="s">'django.middleware.cache.UpdateCacheMiddleware'</span><span class="p">,</span>
+     <span class="o">...</span>
+    <span class="s">'django.middleware.cache.FetchFromCacheMiddleware'</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Ensure the UpdateCacheMiddleware is listed first and the FetchFromCacheMiddleware is last in the Middleware classes tuple.</p>
+
+<p>Now, launch your Django development server to take advantage of your new cache engine.</p>
+
+<h2 id="using-the-django-cache">Using the Django cache</h2>
+<p>Django’s cache engine is extremely flexible and can be configured to cache the entire website or a single view. The behavior is controlled by using a decorator. As an example, we’ll cache the following view for 15 minutes…</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">django.views.decorators.cache</span> <span class="kn">import</span> <span class="n">cache_page</span>
+
+<span class="nd">@cache_page</span><span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">15</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>  
+   <span class="o">...</span>
+</code></pre>
+</div>
+
+<h2 id="use-django-redis-cache-inside-functions">Use Django Redis Cache Inside Functions</h2>
+<p>A nice feature of the cache engine is the ability to store data for fast and reliable retrieval…</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">django.core.cache</span> <span class="kn">import</span> <span class="n">cache</span>
+
+<span class="c">#store some data</span>
+<span class="n">cache</span><span class="o">.</span><span class="nb">set</span><span class="p">(</span><span class="s">'craig'</span><span class="p">,</span> <span class="s">'derington'</span><span class="p">)</span>
+
+<span class="c">#now retrieve the key's value</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'craig'</span><span class="p">)</span>
+
+<span class="c">#store a dict</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">set_many</span><span class="p">({</span><span class="s">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'b'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">'c'</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
+
+<span class="c">#get the values</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">get_many</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">,</span> <span class="s">"c"</span><span class="p">])</span>
+
+<span class="c">#store more complex data structures</span>
+<span class="n">cache</span><span class="o">.</span><span class="nb">set</span><span class="p">(</span><span class="s">'my-key'</span><span class="p">,</span> <span class="p">{</span>  
+    <span class="s">'a string'</span><span class="p">:</span> <span class="s">'this is a simple string'</span><span class="p">,</span>
+    <span class="s">'an integer'</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+    <span class="s">'one list'</span><span class="p">:</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">],</span>
+    <span class="s">'this tuple'</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="s">'my dict'</span><span class="p">:</span> <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s">'b'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s">'c'</span><span class="p">:</span> <span class="mi">24</span><span class="p">},</span>
+<span class="p">})</span>
+
+<span class="c">#get the values</span>
+<span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'my-key'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<h3 id="use-redis-for-django-session-storage">Use Redis for Django Session Storage</h3>
+<p>Since we are using Redis as our caching engine, it only makes sense to use it to store our user’s session data. Again, keeping this out of the application database has many performance improvement benefits.</p>
+
+<p>In the settings.py, add this line:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">SESSION_ENGINE</span> <span class="o">=</span> <span class="s">'django.contrib.sessions.backends.cache'</span>
+</code></pre>
+</div>
+
+<p>If you’d prefer to write the session information to the database and only load it from the Redis cache, use this option:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">SESSION_ENGINE</span> <span class="o">=</span> <span class="s">'django.contrib.sessions.backends.cached_db'</span>
+</code></pre>
+</div>
+
+<p>This will make sure the session data is persistent and can survive a server restart or Redis server reload.</p>
+
+<h2 id="alternative-session-data-manager-without-cache">Alternative Session Data Manager without Cache</h2>
+<p>You can also use Redis to store just the user session data without the need to use the caching engine.</p>
+
+<p>Install django-redis-sessions:</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">(.env)$ </span>pip install django-redis-sessions
+</code></pre>
+</div>
+
+<p>And append the following to your Django settings.py file.</p>
+
+<blockquote>
+  <p>Since we are using a unix socket to connect to Redis, you must include the path.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">SESSION_ENGINE</span> <span class="o">=</span> <span class="s">'redis_sessions.session'</span>  
+<span class="n">SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH</span> <span class="o">=</span> <span class="s">'/var/run/redis/redis.sock'</span>  
+</code></pre>
+</div>
+
+<h2 id="wrapping-up">Wrapping Up</h2>
+<p>I like to visualize the data in my Redis cache. There are a number of utilities that provide a nice UI to help you visualize your Redis data. For now, I just use the command line.</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="nv">$redis</span>-cli
+<span class="gp">&gt; </span>info keyspace
+<span class="c"># Keyspace</span>
+db0:keys<span class="o">=</span>16, <span class="nv">expires</span><span class="o">=</span>0, <span class="nv">avg_ttl</span><span class="o">=</span>0  
+db1:keys<span class="o">=</span>4,expires<span class="o">=</span>1,avg_ttle<span class="o">=</span>30411590898  
+</code></pre>
+</div>
+
+<p>To see the individual keys in the keyspace…</p>
+
+<div class="language-shell highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">select </span>1
+<span class="o">[</span>1] keys <span class="k">*</span>
+1<span class="o">)</span> <span class="s2">"redis"</span>  
+2<span class="o">)</span> <span class="s2">"cache"</span>  
+3<span class="o">)</span> <span class="s2">"session"</span>  
+4<span class="o">)</span> <span class="s2">"django1"</span>  
+OK  
+</code></pre>
+</div>
+
+<p>Redis offers many benefits for Django developers. Use it as a caching engine to cache your website and as a session storage data store. The performance improvements will be quite noticeable as your site scales. You will also notice a decrease in the number of queries that are executed when using the debug_toolbar in your development environment.</p>
+
+<p>For more information about Redis or available Redis commands, <a href="http://redis.io/commands">click here</a>.</p>
+
+<p>Redis GUI’s: <br />
+1. redsmin 
+2. redis-command 
+3. redis desktop manager 
+4. redis-browser</p>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="http://cundi.github.io/2016/07/27/RealTime-Django-with-Django-Channels/">实时Django的问世：Django Channels入门
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="http://cundi.github.io/2016/07/07/Automate-the-Django-Task-Queue-with-Celery-and-Redis/">使用Celery和Redis自动化Django任务队列
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    
+    <div class="pre">
+
+        <p><strong>上一篇</strong> <a href="/2016/07/27/RealTime-Django-with-Django-Channels/">实时Django的问世：Django Channels入门</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+    </div>
+</div>
+
+
+        <h2 id="comments">Comments</h2>
+        
+<!-- 多说评论框 start -->
+<div class="ds-thread" data-thread-key="http://cundi.github.io/2016/07/27/%E8%AE%BE%E7%BD%AERedis%E4%B8%BADjango%E7%9A%84%E7%BC%93%E5%AD%98%E5%BC%95%E6%93%8E%E5%92%8C%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86%E5%99%A8/" data-title="设置Redis为Django的缓存引擎和会话管理器" data-url="http://cundi.github.io/2016/07/27/%E8%AE%BE%E7%BD%AERedis%E4%B8%BADjango%E7%9A%84%E7%BC%93%E5%AD%98%E5%BC%95%E6%93%8E%E5%92%8C%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86%E5%99%A8/"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+    var duoshuoQuery = {
+        short_name: "liuminglei"
+    };
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';
+        ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+
+
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    <li><a href="#comments">Comments</a></li>
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             翻译技术文章和书籍，拾人牙慧尔！ 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/cundi" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:yueyizx@163.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次，本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/">Jekyll</a> & <a href="https://pages.github.com/">Github Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a href="https://github.com/Gaohaoyang">HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" class="scroll">
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/scroll.min.js " charset="utf-8"></script>
+  </body>
+
+</html>

@@ -1,8 +1,8 @@
 ---
 layout: post
-title: "实时Django"
+title: "实时Django的问世：Django Channels入门"
 categories: Django
-tags: DjangoChannel
+tags: Django Channels
 ---
 
 * content

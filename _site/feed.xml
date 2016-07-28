@@ -5,12 +5,251 @@
     <description></description>
     <link>http://cundi.github.io/</link>
     <atom:link href="http://cundi.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 27 Jul 2016 23:03:16 +0800</pubDate>
-    <lastBuildDate>Wed, 27 Jul 2016 23:03:16 +0800</lastBuildDate>
+    <pubDate>Thu, 28 Jul 2016 13:51:42 +0800</pubDate>
+    <lastBuildDate>Thu, 28 Jul 2016 13:51:42 +0800</lastBuildDate>
     <generator>Jekyll v3.1.6</generator>
     
       <item>
-        <title>实时Django</title>
+        <title>设置Redis为Django的缓存引擎和会话管理器</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#configure-redis-as-djangos-cache-engine-and-session-storage-manager&quot; id=&quot;markdown-toc-configure-redis-as-djangos-cache-engine-and-session-storage-manager&quot;&gt;Configure Redis as Django’s Cache Engine and Session Storage Manager&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#installing-redis&quot; id=&quot;markdown-toc-installing-redis&quot;&gt;Installing Redis&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#configure-redis&quot; id=&quot;markdown-toc-configure-redis&quot;&gt;Configure Redis&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#use-redis-with-django&quot; id=&quot;markdown-toc-use-redis-with-django&quot;&gt;Use Redis with Django&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#using-the-django-cache&quot; id=&quot;markdown-toc-using-the-django-cache&quot;&gt;Using the Django cache&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#use-django-redis-cache-inside-functions&quot; id=&quot;markdown-toc-use-django-redis-cache-inside-functions&quot;&gt;Use Django Redis Cache Inside Functions&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#use-redis-for-django-session-storage&quot; id=&quot;markdown-toc-use-redis-for-django-session-storage&quot;&gt;Use Redis for Django Session Storage&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#alternative-session-data-manager-without-cache&quot; id=&quot;markdown-toc-alternative-session-data-manager-without-cache&quot;&gt;Alternative Session Data Manager without Cache&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#wrapping-up&quot; id=&quot;markdown-toc-wrapping-up&quot;&gt;Wrapping Up&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;configure-redis-as-djangos-cache-engine-and-session-storage-manager&quot;&gt;Configure Redis as Django’s Cache Engine and Session Storage Manager&lt;/h2&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;原始链接：http://www.craigderington.me/configure-redis-as-djangos-cache-engine/&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Redis is an open-source, persistent, in-memory data structure server that stores it’s data in key-value pairs. Redis can be used as a database, cache or message broker. Redis data structures support a variety of formats including strings, lists, sets, hashes and sorted sets. More advanced data structures include bitmaps, hyper-logs, and geo-spatial index with radius queries. Redis has built in replication, Lua scripting and transactions. It offers different levels on on-disk persistence and provides high availability and automatic partitioning.&lt;/p&gt;
+
+&lt;p&gt;Redis是一个开源的，持久化的，内存数据结构服务器，&lt;/p&gt;
+
+&lt;p&gt;Due to it’s fast, in-memory data storage retrieval, Redis is an optimal solution to be used with Django; as both a cache engine and for session storage. The primary benefit is storing cache and session data separate from your application database, which prevents unnecessary data read and write operations and can provide a nice performance boost for your Django applications.&lt;/p&gt;
+
+&lt;h2 id=&quot;installing-redis&quot;&gt;Installing Redis&lt;/h2&gt;
+&lt;p&gt;Redis is written in C and works with Unix, BSD, Linux and OS X. For our test case, we will be installing Redis on Ubuntu 14.04. OK, let’s get cooking…&lt;/p&gt;
+
+&lt;p&gt;Redis使用C编写，可以运行于Unix，BSD，Linux和OS X。&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update  
+sudo apt-get install redis-server  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Once Redis is finished downloading and installing, check the redis-server for it’s version info to confirm it was installed correctly and is up and running.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;redis-server --version  
+Redis server &lt;span class=&quot;nv&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;2.8.4 &lt;span class=&quot;nv&quot;&gt;sha&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;00000000:0 &lt;span class=&quot;nv&quot;&gt;malloc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;jemalloc-3.4.1 &lt;span class=&quot;nv&quot;&gt;bits&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;64 
+&lt;span class=&quot;nv&quot;&gt;build&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;a44a05d76f06a5d9  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;configure-redis&quot;&gt;Configure Redis&lt;/h2&gt;
+&lt;p&gt;I like to connect to Redis via a Unix socket instead of TCP. This simply alleviates Redis of the overhead of managing TCP connections.&lt;/p&gt;
+
+&lt;p&gt;Configure Redis to communicate and accept direct socket connections, edit the /etc/redis/redis.conf file and comment out the BIND and PORT directives and uncomment the unixsocket directives.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#comment out
+#port 6379
+#bind 127.0.0.1
+
+#uncomment
+unixsocket /var/run/redis/redis.sock  
+unixsocketperm 700  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Save your changes and restart the Redis server.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo service redis-server restart 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;After restarting the redis-server, check to make sure the server is listening and accepting connections.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;redis-cli  
+&amp;gt; ping
+PONG
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Success! Our Redis server is up and running.&lt;/p&gt;
+
+&lt;h2 id=&quot;use-redis-with-django&quot;&gt;Use Redis with Django&lt;/h2&gt;
+&lt;p&gt;You will need to install the django-redis-cache module via pip in your Django project’s virtual environment in order for Django to use the Redis server for caching and session storage.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; .env/bin/activate
+&lt;span class=&quot;gp&quot;&gt;(.env)$ &lt;/span&gt;pip install django-redis-cache
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Then add the following Redis config statement to settings.py.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;CACHES&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;s&quot;&gt;&#39;default&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&#39;BACKEND&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;redis_cache.RedisCache&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&#39;LOCATION&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;/var/run/redis/redis.sock&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You will also need to add the following lines to your Django Middleware classes section in settings.py:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;MIDDLEWARE_CLASSES&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;  
+    &lt;span class=&quot;s&quot;&gt;&#39;django.middleware.cache.UpdateCacheMiddleware&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;django.middleware.cache.FetchFromCacheMiddleware&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Ensure the UpdateCacheMiddleware is listed first and the FetchFromCacheMiddleware is last in the Middleware classes tuple.&lt;/p&gt;
+
+&lt;p&gt;Now, launch your Django development server to take advantage of your new cache engine.&lt;/p&gt;
+
+&lt;h2 id=&quot;using-the-django-cache&quot;&gt;Using the Django cache&lt;/h2&gt;
+&lt;p&gt;Django’s cache engine is extremely flexible and can be configured to cache the entire website or a single view. The behavior is controlled by using a decorator. As an example, we’ll cache the following view for 15 minutes…&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;django.views.decorators.cache&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cache_page&lt;/span&gt;
+
+&lt;span class=&quot;nd&quot;&gt;@cache_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;15&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;  
+   &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;use-django-redis-cache-inside-functions&quot;&gt;Use Django Redis Cache Inside Functions&lt;/h2&gt;
+&lt;p&gt;A nice feature of the cache engine is the ability to store data for fast and reliable retrieval…&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;django.core.cache&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#store some data&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;craig&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;derington&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#now retrieve the key&#39;s value&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;craig&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#store a dict&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_many&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;b&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;c&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#get the values&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_many&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;b&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#store more complex data structures&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;my-key&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;  
+    &lt;span class=&quot;s&quot;&gt;&#39;a string&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;this is a simple string&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;an integer&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;123&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;one list&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;11&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;13&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;this tuple&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&#39;my dict&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;a&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;26&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;b&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;25&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;c&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+&lt;span class=&quot;c&quot;&gt;#get the values&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;my-key&#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&quot;use-redis-for-django-session-storage&quot;&gt;Use Redis for Django Session Storage&lt;/h3&gt;
+&lt;p&gt;Since we are using Redis as our caching engine, it only makes sense to use it to store our user’s session data. Again, keeping this out of the application database has many performance improvement benefits.&lt;/p&gt;
+
+&lt;p&gt;In the settings.py, add this line:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;SESSION_ENGINE&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;django.contrib.sessions.backends.cache&#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you’d prefer to write the session information to the database and only load it from the Redis cache, use this option:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;SESSION_ENGINE&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;django.contrib.sessions.backends.cached_db&#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This will make sure the session data is persistent and can survive a server restart or Redis server reload.&lt;/p&gt;
+
+&lt;h2 id=&quot;alternative-session-data-manager-without-cache&quot;&gt;Alternative Session Data Manager without Cache&lt;/h2&gt;
+&lt;p&gt;You can also use Redis to store just the user session data without the need to use the caching engine.&lt;/p&gt;
+
+&lt;p&gt;Install django-redis-sessions:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;(.env)$ &lt;/span&gt;pip install django-redis-sessions
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;And append the following to your Django settings.py file.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Since we are using a unix socket to connect to Redis, you must include the path.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;SESSION_ENGINE&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;redis_sessions.session&#39;&lt;/span&gt;  
+&lt;span class=&quot;n&quot;&gt;SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&#39;/var/run/redis/redis.sock&#39;&lt;/span&gt;  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;wrapping-up&quot;&gt;Wrapping Up&lt;/h2&gt;
+&lt;p&gt;I like to visualize the data in my Redis cache. There are a number of utilities that provide a nice UI to help you visualize your Redis data. For now, I just use the command line.&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;$redis&lt;/span&gt;-cli
+&lt;span class=&quot;gp&quot;&gt;&amp;gt; &lt;/span&gt;info keyspace
+&lt;span class=&quot;c&quot;&gt;# Keyspace&lt;/span&gt;
+db0:keys&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;16, &lt;span class=&quot;nv&quot;&gt;expires&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0, &lt;span class=&quot;nv&quot;&gt;avg_ttl&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0  
+db1:keys&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4,expires&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1,avg_ttle&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;30411590898  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To see the individual keys in the keyspace…&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;select &lt;/span&gt;1
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;1] keys &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;redis&quot;&lt;/span&gt;  
+2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;cache&quot;&lt;/span&gt;  
+3&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;session&quot;&lt;/span&gt;  
+4&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;django1&quot;&lt;/span&gt;  
+OK  
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Redis offers many benefits for Django developers. Use it as a caching engine to cache your website and as a session storage data store. The performance improvements will be quite noticeable as your site scales. You will also notice a decrease in the number of queries that are executed when using the debug_toolbar in your development environment.&lt;/p&gt;
+
+&lt;p&gt;For more information about Redis or available Redis commands, &lt;a href=&quot;http://redis.io/commands&quot;&gt;click here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Redis GUI’s: &lt;br /&gt;
+1. redsmin 
+2. redis-command 
+3. redis desktop manager 
+4. redis-browser&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 27 Jul 2016 00:00:00 +0800</pubDate>
+        <link>http://cundi.github.io/2016/07/27/%E8%AE%BE%E7%BD%AERedis%E4%B8%BADjango%E7%9A%84%E7%BC%93%E5%AD%98%E5%BC%95%E6%93%8E%E5%92%8C%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86%E5%99%A8/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2016/07/27/%E8%AE%BE%E7%BD%AERedis%E4%B8%BADjango%E7%9A%84%E7%BC%93%E5%AD%98%E5%BC%95%E6%93%8E%E5%92%8C%E4%BC%9A%E8%AF%9D%E7%AE%A1%E7%90%86%E5%99%A8/</guid>
+        
+        <category>Django</category>
+        
+        <category>Redis</category>
+        
+        <category>Session</category>
+        
+        <category>翻译</category>
+        
+        
+        <category>Django</category>
+        
+        <category>Redis</category>
+        
+      </item>
+    
+      <item>
+        <title>实时Django的问世：Django Channels入门</title>
         <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
   &lt;li&gt;&lt;a href=&quot;#finally-real-time-django-is-here-get-started-with-django-channels&quot; id=&quot;markdown-toc-finally-real-time-django-is-here-get-started-with-django-channels&quot;&gt;Finally, Real-Time Django Is Here: Get Started with Django Channels&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;#getting-started-how-to-make-a-real-time-chat-app-in-django&quot; id=&quot;markdown-toc-getting-started-how-to-make-a-real-time-chat-app-in-django&quot;&gt;Getting started: how to make a real-time chat app in Django&lt;/a&gt;    &lt;ul&gt;
@@ -379,7 +618,9 @@ worker: python manage.py runworker -v2
         <link>http://cundi.github.io/2016/07/27/RealTime-Django-with-Django-Channels/</link>
         <guid isPermaLink="true">http://cundi.github.io/2016/07/27/RealTime-Django-with-Django-Channels/</guid>
         
-        <category>DjangoChannel</category>
+        <category>Django</category>
+        
+        <category>Channels</category>
         
         
         <category>Django</category>
@@ -657,8 +898,8 @@ taskapp-celery:  added process group
 &lt;p&gt;Using Redis with Celery running in the application background is an easy way to automate many of the processes required to keep your application humming along with very little overhead. Use supervisord to monitor the task queue. In some of my recent projects, I use Celery tasks to make RESTful calls against a Django REST API, which in turn triggers both GET and POST methods to specified API endpoints to distribute data to multiple servers.&lt;/p&gt;
 </description>
         <pubDate>Thu, 07 Jul 2016 00:00:00 +0800</pubDate>
-        <link>http://cundi.github.io/2016/07/07/git-clone-not-master-branch/</link>
-        <guid isPermaLink="true">http://cundi.github.io/2016/07/07/git-clone-not-master-branch/</guid>
+        <link>http://cundi.github.io/2016/07/07/Automate-the-Django-Task-Queue-with-Celery-and-Redis/</link>
+        <guid isPermaLink="true">http://cundi.github.io/2016/07/07/Automate-the-Django-Task-Queue-with-Celery-and-Redis/</guid>
         
         <category>Django</category>
         

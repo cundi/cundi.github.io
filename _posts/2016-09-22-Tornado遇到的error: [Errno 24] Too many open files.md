@@ -18,6 +18,9 @@ nginx/1.2.9
 
 StackOverFlow上的找到的解答是, 重新设置ulimit ,查看本机：
 
+
+
+
 ```
 [root@AY1404272234249537e7Z logs]# ulimit -n
 1024
@@ -41,6 +44,12 @@ file locks                      (-x) unlimited
 ```
 
 不过有人设置的非常大的进程打开文件上限，还是会出现问题。
+
+Tornado的网页连接过多：
+
+```python
+Tornado “error: [Errno 24] Too many open files” error 
+```
 
 解决是在HTTPServer实例化时添加关键字参数no_keep_alive=True。
 

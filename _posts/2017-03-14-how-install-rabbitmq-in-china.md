@@ -2,7 +2,7 @@
 layout: post
 title:  "如何在Dockerfile中使用本地代理"
 categories: Docker
-tags: Docker Dockerfile 代理
+tags: Docker Dockerfile 代理 Git
 ---
 
 * content
@@ -117,4 +117,12 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 EXPOSE 4369 5671 5672 25672
 CMD ["rabbitmq-server"]
+```
+
+另外，如何在Dockerfile中使用 `git clone` 而不会报错呢？  
+
+可以这样：  
+
+```
+git clone --progress --verbose https://github.com/zsh-users/antigen 2&> /dev/null
 ```

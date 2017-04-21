@@ -20,14 +20,32 @@ tags: Docker Dockerfile npm
 ```docker
 FROM ubuntu:16.04 
 COPY sources.list /etc/apt/sources.list
-RUN apt-get update -y && apt-get install --no-install-recommends -y -q curl python build-essential git ca-certificates
+RUN mkdir -p /root/agent/ /root/Kandy.js/ /root/kandy-redux /var/run/sshd
+COPY agent /root/agent
+COPY Kandy.js /root/Kandy.js/
+COPY kandy-redux /root/kandy-redux/
+
+
+RUN apt-get update -y && apt-get install --no-install-recommends -y -q curl python build-essential git ca-certificates openssh-server
 RUN mkdir /nodejs && curl http://nodejs.org/dist/v4.8.2/node-v4.8.2-linux-x64.tar.gz | tar xvzf - -C /nodejs --strip-components=1
+
+RUN echo 'root:123456' | chpasswd
 
 ENV PATH $PATH:/nodejs/bin
 RUN npm install -g npm --prefix=/usr/local
 RUN ln -s -f /usr/local/bin/npm /usr/bin/npm
-RUN npm install gulp -g
+RUN npm install gulp webpack webpack-dev-server -g
+
+RUN cd /root/Kandy.js && npm link
+RUN cd /root/kandy-redux && npm link kandy-js && npm link
+RUN cd /root/agent/ && npm link kandy-redux
+
+
 RUN ls -al $(npm root -g)
+
+EXPOSE 4322:22 60800:60800
+CMD ["/user/sbin/sshd", "-D"]
+ENTRYPOINT ["/bin/sh", "/root/agent/start.sh"]
 ```
 
 在Docker内执行npm link出现个不小的问题：

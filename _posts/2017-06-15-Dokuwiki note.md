@@ -74,7 +74,11 @@ Syntax
 ```
 
 要求不高的话，直接上markdown写。
+  
+<br/>
+
 
 另外，页面内的索引也会直接通过`#`标签的层次关系解析好。
 
 
+sudo docker run --name txt-mediawiki  -p 8078:80 -v /var/data/mediawiki:data:rw -d wikimedia/mediawiki

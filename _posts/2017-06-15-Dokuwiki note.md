@@ -78,7 +78,12 @@ Syntax
 <br/>
 
 
-另外，页面内的索引也会直接通过`#`标签的层次关系解析好。
+另外，页面内的索引也会直接通过`#`标签的层次关系解析好。  
 
+基于命名空间的树形索引侧边栏：  
+
+```
+{{indexmenu>#1|js#indextheme msort nsort context}}
+```
 
 sudo docker run --name txt-mediawiki  -p 8078:80 -v /var/data/mediawiki:data:rw -d wikimedia/mediawiki

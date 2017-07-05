@@ -16,9 +16,32 @@ to
       <source file='/srv/storage/images/kerio_control.img'/>
       <target dev='hda' bus='ide'/>
       <address type='drive' controller='0' bus='0' unit='0'/>
-    </disk>
+</disk>
 ```
 
+```xml
+<interface type='bridge'>
+  <mac address='52:54:00:11:c4:3b'/>
+  <source bridge='br0'/>
+  <target dev='vnet2'/>
+  <model type='virtio'/>
+  <alias name='net0'/>
+  <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+</interface>
+```
+
+改变网卡为
+
+```xml
+<interface type='bridge'>
+      <mac address='52:54:00:11:c4:3b'/>
+      <source bridge='br0'/>
+      <target dev='vnet2'/>
+      <model type='e1000'/>
+      <alias name='net0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+</interface>
+```
 -----------
 生成ssh私钥登录：
 
@@ -150,3 +173,56 @@ PermitRootLogin yes
 SyslogFacility AUTHPRIV
 PasswordAuthentication no 
 ```
+
+
+---------------
+mongodb 使用认证：  
+
+```js
+var opt = {
+        user: 'mcc',
+        pass: 'i+mcc=txtmcc',
+        auth: {
+            authdb: 'admin'
+        }
+    };
+
+
+let connectDatabase = () => {
+  mongoose.connect('mongodb://127.0.0.1/txt-lsp-agent-mcc-v2')
+  let db = mongoose.connection
+  db.on('error', console.error.bind(console, 'connection error:'))
+  db.once('open', () => {
+    console.log('Connected to Database.')
+  })
+}
+```
+
+------------
+git reset [--soft | --mixed | --hard
+
+
+上面常见三种类型
+
+
+
+--mixed
+
+会保留源码,只是将git commit和index 信息回退到了某个版本.
+
+git reset 默认是 --mixed 模式 
+git reset --mixed  等价于  git reset
+
+
+--soft
+
+保留源码,只回退到commit 信息到某个版本.不涉及index的回退,如果还需要提交,直接commit即可.
+
+
+
+--hard
+
+源码也会回退到某个版本,commit和index 都回回退到某个版本.(注意,这种方式是改变本地代码仓库源码)
+
+当然有人在push代码以后,也使用 reset --hard <commit...> 回退代码到某个版本之前,但是这样会有一个问题,你线上的代码没有变,线上commit,index都没有变,当你把本地代码修改完提交的时候你会发现权是冲突.....
+

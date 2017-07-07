@@ -123,13 +123,13 @@ iface br0 inet dhcp
 kvm的xml描述文件：  
 
 ```xml
-<domain type='kvm' id='36'>
+<domain type='kvm' id='3'>
   <name>DSM5.2</name>
   <uuid>322f8c59-33a6-4a80-72da-60b0fd2cc73a</uuid>
   <description>None</description>
-  <memory unit='KiB'>2097152</memory>
+  <memory unit='KiB'>4194304</memory>
   <currentMemory unit='KiB'>2097152</currentMemory>
-  <vcpu placement='static'>1</vcpu>
+  <vcpu placement='static' current='2'>4</vcpu>
   <resource>
     <partition>/machine</partition>
   </resource>
@@ -226,5 +226,25 @@ kvm的xml描述文件：
     <imagelabel>libvirt-322f8c59-33a6-4a80-72da-60b0fd2cc73a</imagelabel>
   </seclabel>
 </domain>
+```
+
+-----------------
+
+- 在黑群晖上挂载Ubuntu上NFS：   
+
+```shell
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/homes /volume1/homes
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/music /volume1/music
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/photo /volume1/photo
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/video /volume1/video
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/documents /volume1/documents
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/books /volume1/books
+/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/others /volume1/others
+```
+
+- 赋予开机自启动脚本执行权限
+
+```shell
+chmod a+x /usr/syno/etc.defaults/rc.d/S99mount.sh
 ```
 

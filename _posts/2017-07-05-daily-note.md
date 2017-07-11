@@ -230,21 +230,4 @@ kvm的xml描述文件：
 
 -----------------
 
-- 在黑群晖上挂载Ubuntu上NFS：   
-
-```shell
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/homes /volume1/homes
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/music /volume1/music
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/photo /volume1/photo
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/video /volume1/video
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/documents /volume1/documents
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/books /volume1/books
-/bin/mount -t nfs -o hard 192.168.16.34:/mnt/nas_disk/others /volume1/others
-```
-
-- 赋予开机自启动脚本执行权限
-
-```shell
-chmod a+x /usr/syno/etc.defaults/rc.d/S99mount.sh
-```
 

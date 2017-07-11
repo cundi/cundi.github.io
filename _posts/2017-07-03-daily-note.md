@@ -78,6 +78,7 @@ solve:
 docker exec -it d08 mongodump --db txt-lsp-agent-mcc --username txtAdmin --password PivosTxtech07031036 --out /data/db/backup --authenticationDatabase admin
 ```
 
+## 将容器中的mongo数据库备份出来
 
 ```sh
 #!/bin/bash
